@@ -23,7 +23,7 @@ go get github.com/alexedwards/stack
 
 ### Creating a Chain
 
-New middleware chains are created using `stack.New`:
+New middleware chains are created using `stack.New`
 
 ```go
 stack.New(middlewareOne, middlewareTwo, middlewareThree)
@@ -31,7 +31,7 @@ stack.New(middlewareOne, middlewareTwo, middlewareThree)
 
 You should pass middleware as parameters in the same order that you want them to be executed (reading left to right).
 
-The `stack.New` function accepts middleware using the following pattern:
+The `stack.New` function accepts middleware that uses the following pattern:
 
 ```go
 func middlewareOne(ctx stack.Context, h http.Handler) http.Handler {
@@ -60,7 +60,7 @@ Application handlers are added to a chain using the `Then` method. When this met
 http.Handle("/", stack.New(middlewareOne, middlewareTwo).Then(appHandler))
 ```
 
-The `Then` method accepts handlers using the following pattern:
+The `Then` method accepts handlers that uses the following pattern:
 
 ```go
 func appHandler(ctx stack.Context) http.Handler {
@@ -78,7 +78,7 @@ fs :=  http.FileServer(http.Dir("./static/"))
 http.Handle("/", stack.New(middlewareOne, middlewareTwo).Then(stack.Handler(fs)))
 ```
 
-Similarly the `stack.HandlerFunc` adapter is provided so a function with the signature `func(http.ResponseWriter, *http.Request)` can be used in `Then`. For example a function like:
+Similarly the `stack.HandlerFunc` adapter is provided so a function with the signature `func(http.ResponseWriter, *http.Request)` can be used in `Then`. For example the function:
 
 ```go
 func foo(w http.ResponseWriter, r *http.Request) {
@@ -94,7 +94,7 @@ http.Handle("/", stack.New(middlewareOne, middlewareTwo).Then(stack.HandlerFunc(
 
 ### Example
 
-This example chains together the third-party `httpAuth` middleware package and a custom `tokenMiddleware` function. This middleware sets a `token` value in the context which can be later accessed by the `tokenHandler` function.
+This example chains together a third-party middleware package (`httpAuth`) and a custom `tokenMiddleware` middleware handler. This middleware sets a `token` value in the context which is later accessed by the `tokenHandler` application handler.
 
 ```go
 package main
@@ -131,7 +131,7 @@ func tokenHandler(ctx stack.Context) http.Handler {
 
 Requesting the resource should give you a response like:
 
-```shell
+```bash
 $ curl -i user:pass@localhost:3000/
 HTTP/1.1 200 OK
 Content-Length: 41
