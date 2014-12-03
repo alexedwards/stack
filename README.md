@@ -6,7 +6,7 @@ Stack makes it simple to create context-aware middleware chains for Go web appli
 
 ### Why?
 
-- Stack provides a inbuilt request-scoped map for sharing data (or *context*) between handlers.
+- Stack provides a inbuilt request-scoped map for sharing data (or *context*) between HTTP handlers.
 - It also lets you create stackable, reusable, handler chains in the Alice style.
 - It's compatible with the common `func(http.Handler) http.Handler` middleware pattern.
 - Chains satisfy the `http.Handler` interface, so they can be used with the `http.DefaultServeMux`.
@@ -60,7 +60,7 @@ Application handlers are added to a chain using the `Then` method. When this met
 http.Handle("/", stack.New(middlewareOne, middlewareTwo).Then(appHandler))
 ```
 
-The `Then` method accepts handlers that uses the following pattern:
+The `Then` method accepts handlers that use the following pattern:
 
 ```go
 func appHandler(ctx stack.Context) http.Handler {
@@ -152,7 +152,7 @@ Unauthorized
 
 You should be aware that `stack.Context` is implemented as a `map[string]interface{}`, scoped to the goroutine executing the current HTTP request.
 
-To keep your code type-safe at compile time it's a good idea to use getters and setters when accessing Context. The above example is better written as:
+To keep your code type-safe at compile time it's a good idea to restrict yourself to using getter and setter functions when accessing Context. The above example is better written as:
 
 ```go
 ...
