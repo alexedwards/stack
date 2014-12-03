@@ -25,7 +25,7 @@ New middleware chains are created using `stack.New`:
 stack.New(middlewareOne, middlewareTwo, middlewareThree)
 ```
 
-You should pass middleware as parameters in the same order that you want them executed (reading left to right).
+You should pass middleware as parameters in the same order that you want them to be executed (reading left to right).
 
 The `stack.New` function accepts middleware using the following pattern:
 
@@ -74,7 +74,7 @@ fs :=  http.FileServer(http.Dir("./static/"))
 http.Handle("/", stack.New(middlewareOne, middlewareTwo).Then(stack.Handler(fs)))
 ```
 
-Similarly the `stack.HandlerFunc` adapter is provided so a function with the signature `func(http.ResponseWriter, *http.Request)` can also be used. For example a function like:
+Similarly the `stack.HandlerFunc` adapter is provided so a function with the signature `func(http.ResponseWriter, *http.Request)` can be used in `Then`. For example a function like:
 
 ```go
 func foo(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +82,7 @@ func foo(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-Can be used in `Then`:
+Can be used like:
 
 ```go
 http.Handle("/", stack.New(middlewareOne, middlewareTwo).Then(stack.HandlerFunc(foo)))
@@ -140,9 +140,7 @@ Token is: c9e452805dee5044ba520198628abcaa
 
 You should be aware that `stack.Context` is implemented as a `map[string]interface{}`, scoped to the goroutine executing the current HTTP request.
 
-To keep your code type-safe at compile time it's a good idea to use getters and setters when accessing Context.
-
-The above example is better written as:
+To keep your code type-safe at compile time it's a good idea to use getters and setters when accessing Context. The above example is better written as:
 
 ```go
 ...
@@ -169,11 +167,11 @@ func Token(ctx stack.Context) string {
 }
 ```
 
-As a side note: If you're planning to pass Context to a secondary goroutine for processing you'll need to make sure that it is safe for concurrent use, probably by implementing a [mutex lock](http://www.alexedwards.net/blog/understanding-mutexes) around potentially racy code.
+As a side note: If you're planning to pass Context to a secondary goroutine for processing you'll need to make sure that it's safe for concurrent use, probably by implementing a [mutex lock](http://www.alexedwards.net/blog/understanding-mutexes) around potentially racy code.
 
 ### Reusing Stacks
 
-Like Alice, you can easily reuse middleware chains in Stack:
+Like Alice, Stack has the huge benefit of reusable middleware chains:
 
 ```go
 stdStack := stack.New(middlewareOne, middlewareTwo)
