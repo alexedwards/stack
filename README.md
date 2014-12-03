@@ -19,13 +19,13 @@ go get github.com/alexedwards/stack
 
 ### Creating a Chain
 
-New middleware chains are created using `stack.New`.
+New middleware chains are created using `stack.New`:
 
 ```go
 stack.New(middlewareOne, middlewareTwo, middlewareThree)
 ```
 
-You should pass you middleware as parameters in the same order that you want them to be executed (left to right).
+You should pass middleware as parameters in the same order that you want them executed (reading left to right).
 
 The `stack.New` function accepts middleware using the following pattern:
 
@@ -38,9 +38,9 @@ func middlewareOne(ctx stack.Context, h http.Handler) http.Handler {
 }
 ```
 
-Middleware with the signature `func(http.Handler) http.Handler` can also be added to a chain, using the `stack.Middleware` adapter. This makes it easy to use third-party middleware with Stack.
+Middleware with the signature `func(http.Handler) http.Handler` can also be added to a chain, using the `stack.Middleware` adapter. This makes it easy to register third-party middleware with Stack.
 
-For example, if you want to make use of Goji's [httpauth](https://github.com/goji/httpauth) middleware you'd do something similar to the following:
+For example, if you want to use Goji's [httpauth](https://github.com/goji/httpauth) middleware you would do the following:
 
 ```go
 authenticate := stack.Middleware(httpauth.SimpleBasicAuth("user", "pass"))
@@ -125,9 +125,9 @@ func tokenHandler(ctx stack.Context) http.Handler {
 }
 ```
 
-Running this example will give you a response like this:
+Requesting the resource should give you a response like:
 
-```bash
+```shell
 $ curl -i user:pass@localhost:3000/
 HTTP/1.1 200 OK
 Content-Length: 41
@@ -169,7 +169,7 @@ func Token(ctx stack.Context) string {
 }
 ```
 
-As a side note: If you're planning to pass the context to a secondary goroutine for processing you'll need to make sure that it is safe for concurrent use, probably by implementing a [mutex lock](http://www.alexedwards.net/blog/understanding-mutexes) around potentially racy code.
+As a side note: If you're planning to pass Context to a secondary goroutine for processing you'll need to make sure that it is safe for concurrent use, probably by implementing a [mutex lock](http://www.alexedwards.net/blog/understanding-mutexes) around potentially racy code.
 
 ### Reusing Stacks
 
