@@ -4,12 +4,12 @@ Stack makes it simple to create context-aware middleware chains for Go web appli
 
 [Skip to the example &rsaquo;](#example)
 
-### Why use Stack?
+### Why?
 
-- Stack lets you create stackable, reusable, handler chains in the Alice style.
-- It provides a request-scoped map for sharing data (or *context*) between handlers.
+- Stack provides a inbuilt request-scoped map for sharing data (or *context*) between handlers.
+- It also lets you create stackable, reusable, handler chains in the Alice style.
 - It's compatible with the common `func(http.Handler) http.Handler` middleware pattern.
-- Stack chains satisfy the `http.Handler` interface, so they can be used with the `http.DefaultServeMux`.
+- Chains satisfy the `http.Handler` interface, so they can be used with the `http.DefaultServeMux`.
 - It's compile-time type-safe.
 - The package is designed to be simple, non-magic, and get out of your way.
 
