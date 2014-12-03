@@ -1,15 +1,19 @@
 # Stack
 
-Stack makes it simple to create context-aware middleware chains for Go web applications.
-
-It provides two main features:
-
-1. A convenient interface for chaining middleware handlers and application handlers together, inspired by [Alice](https://github.com/justinas/alice).
-2. The ability to pass request-scoped data (or *context*) between middleware and application handlers.
+Stack makes it simple to create context-aware middleware chains for Go web applications. It is heavily inspired by [Alice](https://github.com/justinas/alice).
 
 [Skip to the example &rsaquo;](#example)
 
-## Installation
+### Why use Stack?
+
+- Stack lets you create stackable, reusable, handler chains in the Alice style.
+- It provides a request-scoped map for sharing data (or *context*) between handlers.
+- It's compatible with the common `func(http.Handler) http.Handler` middleware pattern.
+- Stack chains satisfy the `http.Handler` interface, so they can be used with the `http.DefaultServeMux`.
+- It's compile-time type-safe.
+- The package is designed to be simple, non-magic, and get out of your way.
+
+### Installation
 
 ```bash
 go get github.com/alexedwards/stack
@@ -134,6 +138,14 @@ Content-Length: 41
 Content-Type: text/plain; charset=utf-8
 
 Token is: c9e452805dee5044ba520198628abcaa
+
+$ curl -i user:wrongpass@localhost:3000
+HTTP/1.1 401 Unauthorized
+Content-Length: 13
+Content-Type: text/plain; charset=utf-8
+Www-Authenticate: Basic realm="Restricted"
+
+Unauthorized
 ```
 
 ### Getting and Setting Context
@@ -163,7 +175,10 @@ func SetToken(ctx stack.Context, token string) {
 }
 
 func Token(ctx stack.Context) string {
-    return ctx["token"].(string)
+    if token, ok := ctx["token"].(string); ok {
+        return token
+    }
+    return ""
 }
 ```
 
