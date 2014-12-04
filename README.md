@@ -10,7 +10,7 @@ Stack makes it simple to create context-aware middleware chains for Go web appli
 - It also lets you create stackable, reusable, handler chains in the Alice style.
 - It's compatible with the common `func(http.Handler) http.Handler` middleware pattern.
 - Chains satisfy the `http.Handler` interface, so they can be used with the `http.DefaultServeMux`.
-- It's compile-time type-safe.
+- Is compile-time type-safe (so long as you use appropriate [getters and setters](#getting-and-setting-context))
 - The package is designed to be simple, non-magic, and get out of your way.
 
 ### Installation
@@ -181,6 +181,8 @@ func Token(ctx stack.Context) string {
     return ""
 }
 ```
+
+You must make sure that your getter and setter signatures both use exactly the same type (in the above example, a `string`). If you mess them up and use different types in the signatures, any type issues may not be picked up until runtime.
 
 As a side note: If you're planning to pass Context to a secondary goroutine for processing you'll need to make sure that it's safe for concurrent use, probably by implementing a [mutex lock](http://www.alexedwards.net/blog/understanding-mutexes) around potentially racy code.
 
