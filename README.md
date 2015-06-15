@@ -213,3 +213,11 @@ http.Handle("/foo", stdStack.Then(fooHandler))
 
 http.Handle("/bar", extStack.Append(middlewareFive).Then(barHandler))
 ```
+
+### Ideas
+
+* ~~Add adapter for application handlers with the signature func(ctx, w, r) (done)~~
+* Use x/net/context instead of stack.Context.
+* Add tests.
+* Handle adaptations automatically in New(), Append() and Then().
+* Add an AppendStack() function for concatenating stacks.
