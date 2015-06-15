@@ -54,13 +54,13 @@ stack.New(authenticate, middlewareOne, middlewareTwo)
 
 ### Adding Handlers
 
-Application handlers are added to a chain using the `Then` method. When this method has been called the chain becomes a `http.Handler` and can be registered with Go's `http.DefaultServeMux`.
+Application handlers are added to a chain using the `Then()` method. When this method has been called the chain becomes a `http.Handler` and can be registered with Go's `http.DefaultServeMux`. 
 
 ```go
 http.Handle("/", stack.New(middlewareOne, middlewareTwo).Then(appHandler))
 ```
 
-The `Then` method accepts handlers that use the following pattern:
+The `Then()` method accepts handlers that use the following pattern:
 
 ```go
 func appHandler(ctx stack.Context) http.Handler {
@@ -70,7 +70,21 @@ func appHandler(ctx stack.Context) http.Handler {
 }
 ```
 
-Any object which satisfies the `http.Handler` interface can also be used in `Then` thanks to the `stack.Handler` adapter. For example:
+If this pattern feels to verbose, you can setup your handler as a simple function with the signature `func(stack.Context, http.ResponseWriter, *http.Request)` instead, then adapt it with the `stack.ContextHandlerFunc()` adapter. For example:
+
+```go
+func appHandler(ctx stack.Context, w http.ResponseWriter, r *http.Request) {
+   // do something applicaton-ish, accessing ctx
+}
+```
+
+Can be used like:
+
+```go
+http.Handle("/", stack.New(middlewareOne, middlewareTwo).Then(stack.ContextHandlerFunc(appHandler)))
+```
+
+In addtion any object which satisfies the `http.Handler` interface and doesn't need access to `stack.Context` can be used in `Then()` &ndash; via the `stack.Handler()` adapter. For example:
 
 ```go
 fs :=  http.FileServer(http.Dir("./static/"))
@@ -78,7 +92,7 @@ fs :=  http.FileServer(http.Dir("./static/"))
 http.Handle("/", stack.New(middlewareOne, middlewareTwo).Then(stack.Handler(fs)))
 ```
 
-Similarly the `stack.HandlerFunc` adapter is provided so a function with the signature `func(http.ResponseWriter, *http.Request)` can be used in `Then`. For example the function:
+Similarly any function with the signature `func(http.ResponseWriter, *http.Request)` can be used via the `stack.HandlerFunc()` adapter. For example the function:
 
 ```go
 func foo(w http.ResponseWriter, r *http.Request) {
