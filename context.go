@@ -20,7 +20,7 @@ func (c *Context) Get(key string) (interface{}, error) {
 	defer c.mu.RUnlock()
 	val := c.m[key]
 	if val == nil {
-		return nil, fmt.Errorf("stack.Context: key '%s' does not exist", key)
+		return nil, fmt.Errorf("stack.Context: key %q does not exist", key)
 	}
 	return val, nil
 }
