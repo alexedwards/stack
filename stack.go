@@ -55,9 +55,9 @@ func HandlerFunc(fn func(w http.ResponseWriter, r *http.Request)) ContextHandler
 // func(Context, http.ResponseWriter, *http.Request) into a ContextHandler
 func ContextHandlerFunc(fn func(ctx *Context, w http.ResponseWriter, r *http.Request)) ContextHandler {
 	return func(ctx *Context) http.Handler {
-	  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	  	fn(ctx, w, r)
-	  })
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fn(ctx, w, r)
+		})
 	}
 }
 
