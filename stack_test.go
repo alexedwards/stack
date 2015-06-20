@@ -89,6 +89,12 @@ func TestThen(t *testing.T) {
 	assertEquals(t, "An anonymous ContextHandlerFunc", res)
 }
 
+func TestThenHandler(t *testing.T) {
+	st := New().ThenHandler(http.NotFoundHandler())
+	res := serveAndRequest(st)
+	assertEquals(t, "404 page not found\n", res)
+}
+
 func TestMixedMiddleware(t *testing.T) {
 	st := New(bishMiddleware, Middleware(wobbleMiddleware), flipMiddleware).Then(ContextHandlerFunc(bishHandler))
 	res := serveAndRequest(st)
