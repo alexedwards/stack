@@ -2,68 +2,68 @@ package stack
 
 import "net/http"
 
-type ContextHandler func(*Context) http.Handler
-type ContextMiddleware func(*Context, http.Handler) http.Handler
+type chainHandler func(*Context) http.Handler
+type chainMiddleware func(*Context, http.Handler) http.Handler
 
 type Chain struct {
-	m []ContextMiddleware
-	h ContextHandler
+	mws []chainMiddleware
+	h chainHandler
 }
 
-func New(mw ...ContextMiddleware) Chain {
-	return Chain{m: mw}
+func New(mws ...chainMiddleware) Chain {
+	return Chain{mws: mws}
 }
 
-func (c Chain) Append(mw ...ContextMiddleware) Chain {
-	c.m = append(c.m, mw...)
+func (c Chain) Append(mws ...chainMiddleware) Chain {
+	c.mws = append(c.mws, mws...)
 	return c
 }
 
-func (c Chain) Then(h ContextHandler) chainHandler {
+func (c Chain) Then(h chainHandler) closedChain {
 	c.h = h
-	return chainHandler(c)
+	return closedChain(c)
 }
 
-func (c Chain) ThenHandler(h http.Handler) chainHandler {
-	c.h = Handler(h)
-	return chainHandler(c)
+func (c Chain) ThenHandler(h http.Handler) closedChain {
+	c.h = adaptHandler(h)
+	return closedChain(c)
 }
 
-func (c Chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) chainHandler {
-	c.h = HandlerFunc(fn)
-	return chainHandler(c)
+func (c Chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) closedChain {
+	c.h = adaptHandlerFunc(fn)
+	return closedChain(c)
 }
 
-type chainHandler Chain
+type closedChain Chain
 
-func (ch chainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (cc closedChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := NewContext()
 
-	final := ch.h(ctx)
+	final := cc.h(ctx)
 
-	for i := len(ch.m) - 1; i >= 0; i-- {
-		final = ch.m[i](ctx, final)
+	for i := len(cc.mws) - 1; i >= 0; i-- {
+		final = cc.mws[i](ctx, final)
 	}
 
 	final.ServeHTTP(w, r)
 }
 
-// Adapt http.Handler into a ContextHandler
-func Handler(h http.Handler) ContextHandler {
+// Adapt http.Handler into a chainHandler
+func adaptHandler(h http.Handler) chainHandler {
 	return func(ctx *Context) http.Handler {
 		return h
 	}
 }
 
 // Adapt a function with the signature
-// func(http.ResponseWriter, *http.Request) into a ContextHandler
-func HandlerFunc(fn func(w http.ResponseWriter, r *http.Request)) ContextHandler {
-	return Handler(http.HandlerFunc(fn))
+// func(http.ResponseWriter, *http.Request) into a chainHandler
+func adaptHandlerFunc(fn func(w http.ResponseWriter, r *http.Request)) chainHandler {
+	return adaptHandler(http.HandlerFunc(fn))
 }
 
 // Adapt a function with the signature
-// func(Context, http.ResponseWriter, *http.Request) into a ContextHandler
-func ContextHandlerFunc(fn func(ctx *Context, w http.ResponseWriter, r *http.Request)) ContextHandler {
+// func(Context, http.ResponseWriter, *http.Request) into a chainHandler
+func adaptContextHandlerFunc(fn func(ctx *Context, w http.ResponseWriter, r *http.Request)) chainHandler {
 	return func(ctx *Context) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			fn(ctx, w, r)
@@ -72,8 +72,8 @@ func ContextHandlerFunc(fn func(ctx *Context, w http.ResponseWriter, r *http.Req
 }
 
 // Adapt third party middleware with the signature
-// func(http.Handler) http.Handler into ContextMiddleware
-func Middleware(fn func(http.Handler) http.Handler) ContextMiddleware {
+// func(http.Handler) http.Handler into chainMiddleware
+func AdaptMiddleware(fn func(http.Handler) http.Handler) chainMiddleware {
 	return func(ctx *Context, h http.Handler) http.Handler {
 		return fn(h)
 	}

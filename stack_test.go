@@ -58,33 +58,33 @@ func bishHandler(ctx *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func TestNew(t *testing.T) {
-	st := New(bishMiddleware, flipMiddleware).Then(ContextHandlerFunc(bishHandler))
+	st := New(bishMiddleware, flipMiddleware).Then(adaptContextHandlerFunc(bishHandler))
 	res := serveAndRequest(st)
 	assertEquals(t, "bishMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
 }
 
 func TestAppend(t *testing.T) {
-	st := New(bishMiddleware).Append(flipMiddleware).Then(ContextHandlerFunc(bishHandler))
+	st := New(bishMiddleware).Append(flipMiddleware).Then(adaptContextHandlerFunc(bishHandler))
 	res := serveAndRequest(st)
 	assertEquals(t, "bishMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
 }
 
 func TestThen(t *testing.T) {
-	st := New().Then(Handler(http.NotFoundHandler()))
+	st := New().Then(adaptHandler(http.NotFoundHandler()))
 	res := serveAndRequest(st)
 	assertEquals(t, "404 page not found\n", res)
 
 	hf := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "An anonymous HandlerFunc")
 	}
-	st = New().Then(HandlerFunc(hf))
+	st = New().Then(adaptHandlerFunc(hf))
 	res = serveAndRequest(st)
 	assertEquals(t, "An anonymous HandlerFunc", res)
 
 	chf := func(ctx *Context, w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "An anonymous ContextHandlerFunc")
 	}
-	st = New().Then(ContextHandlerFunc(chf))
+	st = New().Then(adaptContextHandlerFunc(chf))
 	res = serveAndRequest(st)
 	assertEquals(t, "An anonymous ContextHandlerFunc", res)
 }
@@ -105,7 +105,7 @@ func TestThenHandlerFunc(t *testing.T) {
 }
 
 func TestMixedMiddleware(t *testing.T) {
-	st := New(bishMiddleware, Middleware(wobbleMiddleware), flipMiddleware).Then(ContextHandlerFunc(bishHandler))
+	st := New(bishMiddleware, AdaptMiddleware(wobbleMiddleware), flipMiddleware).Then(adaptContextHandlerFunc(bishHandler))
 	res := serveAndRequest(st)
 	assertEquals(t, "bishMiddleware>wobbleMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
 }
