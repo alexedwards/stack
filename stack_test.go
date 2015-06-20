@@ -74,9 +74,9 @@ func TestThen(t *testing.T) {
 	res := serveAndRequest(st)
 	assertEquals(t, "404 page not found\n", res)
 
-	hf := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	hf := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "An anonymous HandlerFunc")
-	})
+	}
 	st = New().Then(HandlerFunc(hf))
 	res = serveAndRequest(st)
 	assertEquals(t, "An anonymous HandlerFunc", res)
@@ -93,6 +93,15 @@ func TestThenHandler(t *testing.T) {
 	st := New().ThenHandler(http.NotFoundHandler())
 	res := serveAndRequest(st)
 	assertEquals(t, "404 page not found\n", res)
+}
+
+func TestThenHandlerFunc(t *testing.T) {
+	hf := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "An anonymous HandlerFunc")
+	}
+	st := New().ThenHandlerFunc(hf)
+	res := serveAndRequest(st)
+	assertEquals(t, "An anonymous HandlerFunc", res)
 }
 
 func TestMixedMiddleware(t *testing.T) {

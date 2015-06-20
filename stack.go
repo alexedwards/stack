@@ -29,6 +29,11 @@ func (c Chain) ThenHandler(h http.Handler) chainHandler {
 	return chainHandler(c)
 }
 
+func (c Chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) chainHandler {
+	c.h = HandlerFunc(fn)
+	return chainHandler(c)
+}
+
 type chainHandler Chain
 
 func (ch chainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
