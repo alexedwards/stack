@@ -57,6 +57,13 @@ func bishHandler(ctx *Context, w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "bishHandler [bish=%v]", val)
 }
 
+func bishChainHandler(ctx *Context) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		val, _ := ctx.Get("bish")
+		fmt.Fprintf(w, "bishChainHandler [bish=%v]", val)
+	})
+}
+
 func TestNew(t *testing.T) {
 	st := New(bishMiddleware, flipMiddleware).Then(bishHandler)
 	res := serveAndRequest(st)
@@ -91,6 +98,12 @@ func TestThenHandlerFunc(t *testing.T) {
 	st := New().ThenHandlerFunc(hf)
 	res := serveAndRequest(st)
 	assertEquals(t, "An anonymous HandlerFunc", res)
+}
+
+func TestThenChainHandler(t *testing.T) {
+	st := New(bishMiddleware).ThenChainHandler(bishChainHandler)
+	res := serveAndRequest(st)
+	assertEquals(t, "bishMiddleware>bishChainHandler [bish=bash]", res)
 }
 
 func TestMixedMiddleware(t *testing.T) {

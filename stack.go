@@ -34,6 +34,11 @@ func (c Chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) clos
 	return closedChain(c)
 }
 
+func (c Chain) ThenChainHandler(ch chainHandler) closedChain {
+	c.h = ch
+	return closedChain(c)
+}
+
 type closedChain Chain
 
 func (cc closedChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
