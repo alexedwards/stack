@@ -58,13 +58,13 @@ func bishHandler(ctx *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func TestNew(t *testing.T) {
-	st := New(bishMiddleware, flipMiddleware).Then(adaptContextHandlerFunc(bishHandler))
+	st := New(bishMiddleware, flipMiddleware).Then(bishHandler)
 	res := serveAndRequest(st)
 	assertEquals(t, "bishMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
 }
 
 func TestAppend(t *testing.T) {
-	st := New(bishMiddleware).Append(flipMiddleware).Then(adaptContextHandlerFunc(bishHandler))
+	st := New(bishMiddleware).Append(flipMiddleware).Then(bishHandler)
 	res := serveAndRequest(st)
 	assertEquals(t, "bishMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
 }
@@ -73,7 +73,7 @@ func TestThen(t *testing.T) {
 	chf := func(ctx *Context, w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "An anonymous ContextHandlerFunc")
 	}
-	st := New().Then(adaptContextHandlerFunc(chf))
+	st := New().Then(chf)
 	res := serveAndRequest(st)
 	assertEquals(t, "An anonymous ContextHandlerFunc", res)
 }
@@ -94,7 +94,7 @@ func TestThenHandlerFunc(t *testing.T) {
 }
 
 func TestMixedMiddleware(t *testing.T) {
-	st := New(bishMiddleware, AdaptMiddleware(wobbleMiddleware), flipMiddleware).Then(adaptContextHandlerFunc(bishHandler))
+	st := New(bishMiddleware, AdaptMiddleware(wobbleMiddleware), flipMiddleware).Then(bishHandler)
 	res := serveAndRequest(st)
 	assertEquals(t, "bishMiddleware>wobbleMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
 }

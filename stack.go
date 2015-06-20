@@ -19,8 +19,8 @@ func (c Chain) Append(mws ...chainMiddleware) Chain {
 	return c
 }
 
-func (c Chain) Then(h chainHandler) closedChain {
-	c.h = h
+func (c Chain) Then(chf func(ctx *Context, w http.ResponseWriter, r *http.Request)) closedChain {
+	c.h = adaptContextHandlerFunc(chf)
 	return closedChain(c)
 }
 
