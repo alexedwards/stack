@@ -6,12 +6,17 @@ type chainHandler func(*Context) http.Handler
 type chainMiddleware func(*Context, http.Handler) http.Handler
 
 type Chain struct {
-	mws []chainMiddleware
-	h   chainHandler
+	mws     []chainMiddleware
+	h       chainHandler
+	baseCtx *Context
+}
+
+func Init(ctx *Context) Chain {
+	return Chain{baseCtx: ctx}
 }
 
 func New(mws ...chainMiddleware) Chain {
-	return Chain{mws: mws}
+	return Init(NewContext()).Append(mws...)
 }
 
 func (c Chain) Append(mws ...chainMiddleware) Chain {
@@ -42,7 +47,8 @@ func (c Chain) ThenChainHandler(ch chainHandler) closedChain {
 type closedChain Chain
 
 func (cc closedChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ctx := NewContext()
+	// Always take a copy of baseCtx (i.e. with the pointer at a brand new memory location)
+	ctx := cc.baseCtx.copy()
 
 	final := cc.h(ctx)
 	for i := len(cc.mws) - 1; i >= 0; i-- {

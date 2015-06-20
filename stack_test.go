@@ -57,6 +57,12 @@ func bishHandler(ctx *Context, w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "bishHandler [bish=%v]", val)
 }
 
+func flipHandler(ctx *Context, w http.ResponseWriter, r *http.Request) {
+	valb, _ := ctx.Get("bish")
+	valf, _ := ctx.Get("flip")
+	fmt.Fprintf(w, "flipHandler [bish=%v,flip=%v]", valb, valf)
+}
+
 func bishChainHandler(ctx *Context) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		val, _ := ctx.Get("bish")
@@ -110,4 +116,12 @@ func TestMixedMiddleware(t *testing.T) {
 	st := New(bishMiddleware, AdaptMiddleware(wobbleMiddleware), flipMiddleware).Then(bishHandler)
 	res := serveAndRequest(st)
 	assertEquals(t, "bishMiddleware>wobbleMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
+}
+
+func TestInit(t *testing.T) {
+	ctx := NewContext()
+	ctx.Put("flip", "flop")
+	st := Init(ctx).Append(bishMiddleware).Then(flipHandler)
+	res := serveAndRequest(st)
+	assertEquals(t, "bishMiddleware>flipHandler [bish=bash,flip=flop]", res)
 }

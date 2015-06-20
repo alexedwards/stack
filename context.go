@@ -36,3 +36,13 @@ func (c *Context) Delete(key string) {
 	defer c.mu.Unlock()
 	delete(c.m, key)
 }
+
+func (c *Context) copy() *Context {
+	nc := NewContext()
+	c.mu.RLock()
+	c.mu.RUnlock()
+	for k, v := range c.m {
+		nc.m[k] = v
+	}
+	return nc
+}
