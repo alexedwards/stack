@@ -7,7 +7,7 @@ type chainMiddleware func(*Context, http.Handler) http.Handler
 
 type Chain struct {
 	mws []chainMiddleware
-	h chainHandler
+	h   chainHandler
 }
 
 func New(mws ...chainMiddleware) Chain {
@@ -40,12 +40,18 @@ func (cc closedChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := NewContext()
 
 	final := cc.h(ctx)
-
 	for i := len(cc.mws) - 1; i >= 0; i-- {
 		final = cc.mws[i](ctx, final)
 	}
-
 	final.ServeHTTP(w, r)
+}
+
+// Adapt third party middleware with the signature
+// func(http.Handler) http.Handler into chainMiddleware
+func AdaptMiddleware(fn func(http.Handler) http.Handler) chainMiddleware {
+	return func(ctx *Context, h http.Handler) http.Handler {
+		return fn(h)
+	}
 }
 
 // Adapt http.Handler into a chainHandler
@@ -68,13 +74,5 @@ func adaptContextHandlerFunc(fn func(ctx *Context, w http.ResponseWriter, r *htt
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			fn(ctx, w, r)
 		})
-	}
-}
-
-// Adapt third party middleware with the signature
-// func(http.Handler) http.Handler into chainMiddleware
-func AdaptMiddleware(fn func(http.Handler) http.Handler) chainMiddleware {
-	return func(ctx *Context, h http.Handler) http.Handler {
-		return fn(h)
 	}
 }
