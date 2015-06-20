@@ -70,22 +70,11 @@ func TestAppend(t *testing.T) {
 }
 
 func TestThen(t *testing.T) {
-	st := New().Then(adaptHandler(http.NotFoundHandler()))
-	res := serveAndRequest(st)
-	assertEquals(t, "404 page not found\n", res)
-
-	hf := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "An anonymous HandlerFunc")
-	}
-	st = New().Then(adaptHandlerFunc(hf))
-	res = serveAndRequest(st)
-	assertEquals(t, "An anonymous HandlerFunc", res)
-
 	chf := func(ctx *Context, w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "An anonymous ContextHandlerFunc")
 	}
-	st = New().Then(adaptContextHandlerFunc(chf))
-	res = serveAndRequest(st)
+	st := New().Then(adaptContextHandlerFunc(chf))
+	res := serveAndRequest(st)
 	assertEquals(t, "An anonymous ContextHandlerFunc", res)
 }
 
