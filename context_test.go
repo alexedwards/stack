@@ -2,33 +2,29 @@ package stack
 
 import "testing"
 
-func SetUpContextSuite() *Context {
+func TestGet(t *testing.T) {
 	ctx := NewContext()
 	ctx.m["flip"] = "flop"
-	return ctx
-}
-
-func TestGet(t *testing.T) {
-	ctx := SetUpContextSuite()
 
 	val, err := ctx.Get("flip")
-	AssertEquals(t, nil, err)
-	AssertEquals(t, "flop", val)
+	assertEquals(t, nil, err)
+	assertEquals(t, "flop", val)
 
 	_, err = ctx.Get("wibble")
-	AssertEquals(t, "stack.Context: key \"wibble\" does not exist", err.Error())
+	assertEquals(t, "stack.Context: key \"wibble\" does not exist", err.Error())
 }
 
 func TestPut(t *testing.T) {
-	ctx := SetUpContextSuite()
+	ctx := NewContext()
 
 	ctx.Put("bish", "bash")
-	AssertEquals(t, "bash", ctx.m["bish"])
+	assertEquals(t, "bash", ctx.m["bish"])
 }
 
 func TestDelete(t *testing.T) {
-	ctx := SetUpContextSuite()
+	ctx := NewContext()
+	ctx.m["flip"] = "flop"
 
 	ctx.Delete("flip")
-	AssertEquals(t, nil, ctx.m["flip"])
+	assertEquals(t, nil, ctx.m["flip"])
 }

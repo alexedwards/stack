@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func AssertEquals(t *testing.T, e interface{}, o interface{}) {
+func assertEquals(t *testing.T, e interface{}, o interface{}) {
 	if e != o {
 		t.Errorf("\n...expected = %v\n...obtained = %v", e, o)
 	}
@@ -60,37 +60,37 @@ func bishHandler(ctx *Context, w http.ResponseWriter, r *http.Request) {
 func TestNew(t *testing.T) {
 	st := New(bishMiddleware, flipMiddleware).Then(ContextHandlerFunc(bishHandler))
 	res := serveAndRequest(st)
-	AssertEquals(t, "bishMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
+	assertEquals(t, "bishMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
 }
 
 func TestAppend(t *testing.T) {
 	st := New(bishMiddleware).Append(flipMiddleware).Then(ContextHandlerFunc(bishHandler))
 	res := serveAndRequest(st)
-	AssertEquals(t, "bishMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
+	assertEquals(t, "bishMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
 }
 
 func TestThen(t *testing.T) {
 	st := New().Then(Handler(http.NotFoundHandler()))
 	res := serveAndRequest(st)
-	AssertEquals(t, "404 page not found\n", res)
+	assertEquals(t, "404 page not found\n", res)
 
 	hf := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "An anonymous HandlerFunc")
 	})
 	st = New().Then(HandlerFunc(hf))
 	res = serveAndRequest(st)
-	AssertEquals(t, "An anonymous HandlerFunc", res)
+	assertEquals(t, "An anonymous HandlerFunc", res)
 
 	chf := func(ctx *Context, w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "An anonymous ContextHandlerFunc")
 	}
 	st = New().Then(ContextHandlerFunc(chf))
 	res = serveAndRequest(st)
-	AssertEquals(t, "An anonymous ContextHandlerFunc", res)
+	assertEquals(t, "An anonymous ContextHandlerFunc", res)
 }
 
 func TestMixedMiddleware(t *testing.T) {
 	st := New(bishMiddleware, Middleware(wobbleMiddleware), flipMiddleware).Then(ContextHandlerFunc(bishHandler))
 	res := serveAndRequest(st)
-	AssertEquals(t, "bishMiddleware>wobbleMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
+	assertEquals(t, "bishMiddleware>wobbleMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
 }
