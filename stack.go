@@ -64,6 +64,13 @@ func (cc ClosedChain) BaseCtx() *Context {
 	return cc.baseCtx.copy()
 }
 
+func ReInit(ctx *Context, cc ClosedChain) ClosedChain {
+	// Return a new copy of a ClosedChain with baseCtx pointing to a new location
+	// Everything else stays the same
+	cc.baseCtx = ctx
+	return cc
+}
+
 // Adapt third party middleware with the signature
 // func(http.Handler) http.Handler into chainMiddleware
 func AdaptMiddleware(fn func(http.Handler) http.Handler) chainMiddleware {

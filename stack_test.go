@@ -147,3 +147,21 @@ func TestBaseCtx(t *testing.T) {
 	bc.Put("bish", "bash")
 	assertEquals(t, "map[flip:flop]", fmt.Sprintf("%v", st.baseCtx.m))
 }
+
+func TestReInit(t *testing.T) {
+	ctx := NewContext()
+	ctx.Put("flip", "flop")
+	st := Init(ctx).Append(flipMiddleware).Then(flipHandler)
+	res := serveAndRequest(st)
+	assertEquals(t, "flipMiddleware>flipHandler [bish=<nil>,flip=flop]", res)
+
+	newCtx := st.BaseCtx()
+	newCtx.Put("bish", "bash")
+	st2 := ReInit(newCtx, st)
+	res = serveAndRequest(st2)
+	assertEquals(t, "flipMiddleware>flipHandler [bish=bash,flip=flop]", res)
+
+	// And the initial one shouldn't be mutated
+	res = serveAndRequest(st)
+	assertEquals(t, "flipMiddleware>flipHandler [bish=<nil>,flip=flop]", res)
+}
