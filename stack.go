@@ -27,29 +27,29 @@ func (c Chain) Append(mws ...chainMiddleware) Chain {
 	return c
 }
 
-func (c Chain) Then(chf func(ctx *Context, w http.ResponseWriter, r *http.Request)) closedChain {
+func (c Chain) Then(chf func(ctx *Context, w http.ResponseWriter, r *http.Request)) ClosedChain {
 	c.h = adaptContextHandlerFunc(chf)
-	return closedChain(c)
+	return ClosedChain(c)
 }
 
-func (c Chain) ThenHandler(h http.Handler) closedChain {
+func (c Chain) ThenHandler(h http.Handler) ClosedChain {
 	c.h = adaptHandler(h)
-	return closedChain(c)
+	return ClosedChain(c)
 }
 
-func (c Chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) closedChain {
+func (c Chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) ClosedChain {
 	c.h = adaptHandlerFunc(fn)
-	return closedChain(c)
+	return ClosedChain(c)
 }
 
-func (c Chain) ThenChainHandler(ch chainHandler) closedChain {
+func (c Chain) ThenChainHandler(ch chainHandler) ClosedChain {
 	c.h = ch
-	return closedChain(c)
+	return ClosedChain(c)
 }
 
-type closedChain Chain
+type ClosedChain Chain
 
-func (cc closedChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (cc ClosedChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Always take a copy of baseCtx (i.e. with the pointer at a brand new memory location)
 	ctx := cc.baseCtx.copy()
 
