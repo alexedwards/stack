@@ -134,3 +134,16 @@ func TestInit(t *testing.T) {
 	res := serveAndRequest(st)
 	assertEquals(t, "bishMiddleware>flipHandler [bish=bash,flip=flop]", res)
 }
+
+func TestBaseCtx(t *testing.T) {
+	ctx := NewContext()
+	ctx.Put("flip", "flop")
+	st := Init(ctx).Append(bishMiddleware).Then(flipHandler)
+	bc := st.BaseCtx()
+	assertEquals(t, "map[flip:flop]", fmt.Sprintf("%v", bc.m))
+
+	// Test that mutating the returned *Context doesn't mutate the original
+	// i.e. it's a new copy
+	bc.Put("bish", "bash")
+	assertEquals(t, "map[flip:flop]", fmt.Sprintf("%v", st.baseCtx.m))
+}

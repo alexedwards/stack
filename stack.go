@@ -60,6 +60,10 @@ func (cc ClosedChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	final.ServeHTTP(w, r)
 }
 
+func (cc ClosedChain) BaseCtx() *Context {
+	return cc.baseCtx.copy()
+}
+
 // Adapt third party middleware with the signature
 // func(http.Handler) http.Handler into chainMiddleware
 func AdaptMiddleware(fn func(http.Handler) http.Handler) chainMiddleware {
