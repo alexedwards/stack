@@ -20,7 +20,10 @@ func New(mws ...chainMiddleware) Chain {
 }
 
 func (c Chain) Append(mws ...chainMiddleware) Chain {
-	c.mws = append(c.mws, mws...)
+	newMws := make([]chainMiddleware, len(c.mws)+len(mws))
+	copy(newMws[:len(c.mws)], c.mws)
+	copy(newMws[len(c.mws):], mws)
+	c.mws = newMws
 	return c
 }
 

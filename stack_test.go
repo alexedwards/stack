@@ -77,9 +77,18 @@ func TestNew(t *testing.T) {
 }
 
 func TestAppend(t *testing.T) {
-	st := New(bishMiddleware).Append(flipMiddleware).Then(bishHandler)
+	st := New(bishMiddleware).Append(flipMiddleware, flipMiddleware).Then(bishHandler)
 	res := serveAndRequest(st)
+	assertEquals(t, "bishMiddleware>flipMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
+}
+
+func TestAppendDoesNotMutate(t *testing.T) {
+	st1 := New(bishMiddleware, flipMiddleware)
+	st2 := st1.Append(flipMiddleware, flipMiddleware)
+	res := serveAndRequest(st1.Then(bishHandler))
 	assertEquals(t, "bishMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
+	res = serveAndRequest(st2.Then(bishHandler))
+	assertEquals(t, "bishMiddleware>flipMiddleware>flipMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
 }
 
 func TestThen(t *testing.T) {
