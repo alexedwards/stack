@@ -5,21 +5,21 @@ import "net/http"
 type chainHandler func(*Context) http.Handler
 type chainMiddleware func(*Context, http.Handler) http.Handler
 
-type Chain struct {
+type chain struct {
 	mws     []chainMiddleware
 	h       chainHandler
 	baseCtx *Context
 }
 
-func Init(ctx *Context) Chain {
-	return Chain{baseCtx: ctx}
+func Init(ctx *Context) chain {
+	return chain{baseCtx: ctx}
 }
 
-func New(mws ...chainMiddleware) Chain {
+func New(mws ...chainMiddleware) chain {
 	return Init(NewContext()).Append(mws...)
 }
 
-func (c Chain) Append(mws ...chainMiddleware) Chain {
+func (c chain) Append(mws ...chainMiddleware) chain {
 	newMws := make([]chainMiddleware, len(c.mws)+len(mws))
 	copy(newMws[:len(c.mws)], c.mws)
 	copy(newMws[len(c.mws):], mws)
@@ -27,27 +27,27 @@ func (c Chain) Append(mws ...chainMiddleware) Chain {
 	return c
 }
 
-func (c Chain) Then(chf func(ctx *Context, w http.ResponseWriter, r *http.Request)) ClosedChain {
+func (c chain) Then(chf func(ctx *Context, w http.ResponseWriter, r *http.Request)) ClosedChain {
 	c.h = adaptContextHandlerFunc(chf)
 	return ClosedChain(c)
 }
 
-func (c Chain) ThenHandler(h http.Handler) ClosedChain {
+func (c chain) ThenHandler(h http.Handler) ClosedChain {
 	c.h = adaptHandler(h)
 	return ClosedChain(c)
 }
 
-func (c Chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) ClosedChain {
+func (c chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) ClosedChain {
 	c.h = adaptHandlerFunc(fn)
 	return ClosedChain(c)
 }
 
-func (c Chain) ThenChainHandler(ch chainHandler) ClosedChain {
+func (c chain) ThenChainHandler(ch chainHandler) ClosedChain {
 	c.h = ch
 	return ClosedChain(c)
 }
 
-type ClosedChain Chain
+type ClosedChain chain
 
 func (cc ClosedChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Always take a copy of baseCtx (i.e. with the pointer at a brand new memory location)
