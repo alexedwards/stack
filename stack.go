@@ -50,7 +50,7 @@ func (c chain) ThenChainHandler(ch chainHandler) ClosedChain {
 type ClosedChain chain
 
 func (cc ClosedChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Always take a copy of baseCtx (i.e. with the pointer at a brand new memory location)
+	// Always take a copy of baseCtx (i.e. pointing to a brand new memory location)
 	ctx := cc.baseCtx.copy()
 
 	final := cc.h(ctx)
@@ -65,8 +65,9 @@ func (cc ClosedChain) BaseCtx() *Context {
 }
 
 func ReInit(ctx *Context, cc ClosedChain) ClosedChain {
-	// Return a new copy of a ClosedChain with baseCtx pointing to a new location
-	// Everything else stays the same
+	// Returns a new copy of the ClosedChain with baseCtx pointing to a new location
+	// Note to self: this isn't a complete copy, because cc.mws still points to the original location (it's a reference value)
+	// That's OK, because there's no way to manipulate cc.mws on a ClosedChain
 	cc.baseCtx = ctx
 	return cc
 }
