@@ -122,7 +122,7 @@ func TestThenChainHandler(t *testing.T) {
 }
 
 func TestMixedMiddleware(t *testing.T) {
-	st := New(bishMiddleware, AdaptMiddleware(wobbleMiddleware), flipMiddleware).Then(bishHandler)
+	st := New(bishMiddleware, Adapt(wobbleMiddleware), flipMiddleware).Then(bishHandler)
 	res := serveAndRequest(st)
 	assertEquals(t, "bishMiddleware>wobbleMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
 }

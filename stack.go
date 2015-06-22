@@ -73,7 +73,7 @@ func ReInit(ctx *Context, cc ClosedChain) ClosedChain {
 
 // Adapt third party middleware with the signature
 // func(http.Handler) http.Handler into chainMiddleware
-func AdaptMiddleware(fn func(http.Handler) http.Handler) chainMiddleware {
+func Adapt(fn func(http.Handler) http.Handler) chainMiddleware {
 	return func(ctx *Context, h http.Handler) http.Handler {
 		return fn(h)
 	}
