@@ -18,11 +18,10 @@ func NewContext() *Context {
 func (c *Context) Get(key string) (interface{}, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	val := c.m[key]
-	if val == nil {
-		return nil, fmt.Errorf("stack.Context: key %q does not exist", key)
+	if val, ok := c.m[key]; ok {
+		return val, nil
 	}
-	return val, nil
+	return nil, fmt.Errorf("stack.Context: key %q does not exist", key)
 }
 
 func (c *Context) Put(key string, val interface{}) {

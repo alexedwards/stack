@@ -5,10 +5,15 @@ import "testing"
 func TestGet(t *testing.T) {
 	ctx := NewContext()
 	ctx.m["flip"] = "flop"
+	ctx.m["bish"] = nil
 
 	val, err := ctx.Get("flip")
 	assertEquals(t, nil, err)
 	assertEquals(t, "flop", val)
+
+	val, err = ctx.Get("bish")
+	assertEquals(t, nil, err)
+	assertEquals(t, nil, val)
 
 	_, err = ctx.Get("wibble")
 	assertEquals(t, "stack.Context: key \"wibble\" does not exist", err.Error())
