@@ -2,8 +2,6 @@ package stack
 
 import "testing"
 
-// import "fmt"
-
 func TestGet(t *testing.T) {
 	ctx := NewContext()
 	ctx.m["flip"] = "flop"
