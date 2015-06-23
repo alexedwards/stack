@@ -2,7 +2,7 @@
 
 Stack makes it easy to chain your HTTP middleware and handlers together, and to pass request-scoped context between them. It's basically a context-aware version of [Alice](https://github.com/justinas/alice).
 
-*Update 2015-06-22: Stack is now in version 1.0 (and has many improvements). The previous version remains available via [gopkg.in](http://gopkg.in/alexedwards/stack.v0).*
+*This branch is undergoing some major API changes. For a stable version please use [http://gopkg.in/alexedwards/stack.v0](http://gopkg.in/alexedwards/stack.v0).*
 
 ## Features
 
@@ -86,8 +86,6 @@ func middlewareOne(ctx *stack.Context, next http.Handler) http.Handler {
   })
 }
 ```
-
-Alternatively you can use the  `stack.Init()` function to create a new chain with an initial (or *base*) context. [See here for more information](#using-a-base-context).
 
 You can add more middleware to an existing chain using the `Append()` method. This returns a new copy of the chain. For example:
 
@@ -225,38 +223,6 @@ func Token(ctx *stack.Context) string {
     }
     return ""
 }
-```
-
-### Using a base context
-
-It's possible to set up an initial (or *base*) context when creating your chain with the `stack.Init()` function instead of `stack.New()`. 
-
-```go
-baseCtx := stack.NewContext()
-baseCtx.Put("foo", "bar")
-
-ch := stack.Init(baseCtx).Append(middlewareOne, middlewareTwo)
-```
-
-This base context will be available to all requests which are handled by chains derived (only) from the `Init`'d one.
-
-### Changing a base context
-
-Occasionally it might be necessary to amend context *during the course of an HTTP request, but before it starts being handled by your middleware chain*.
-
-An real-life example is needing to inject [httprouter.Params](https://github.com/julienschmidt/httprouter) into the context before it hands over control to a chain. 
-
-This can be achieved with a combination of the `ClosedChain.BaseCtx()` method and the `stack.ReInit()` function.
-
-The `ClosedChain.BaseCtx()` method returns a new pointer to a **copy** of the current base context. You can manipulate this new copy safely without affecting the original chain or any other requests.
-
-You should then use the `stack.ReInit()` function to create a **new copy of the chain with the new base context**.
-
-```go
-newCtx := originalChain.BaseCtx()
-newCtx.Put("params", ps)
-
-newChain := stack.ReInit(newCtx, originalChain)
 ```
 
 ### TODO 

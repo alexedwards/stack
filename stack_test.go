@@ -127,41 +127,13 @@ func TestMixedMiddleware(t *testing.T) {
 	assertEquals(t, "bishMiddleware>wobbleMiddleware>flipMiddleware>bishHandler [bish=bash]", res)
 }
 
-func TestInit(t *testing.T) {
-	ctx := NewContext()
-	ctx.Put("flip", "flop")
-	st := Init(ctx).Append(bishMiddleware).Then(flipHandler)
-	res := serveAndRequest(st)
-	assertEquals(t, "bishMiddleware>flipHandler [bish=bash,flip=flop]", res)
-}
+func TestInject(t *testing.T) {
+	st := New(flipMiddleware).Then(flipHandler)
+	st2 := Inject(st, "bish", "boop")
 
-func TestBaseCtx(t *testing.T) {
-	ctx := NewContext()
-	ctx.Put("flip", "flop")
-	st := Init(ctx).Append(bishMiddleware).Then(flipHandler)
-	bc := st.BaseCtx()
-	assertEquals(t, "map[flip:flop]", fmt.Sprintf("%v", bc.m))
+	res := serveAndRequest(st2)
+	assertEquals(t, "flipMiddleware>flipHandler [bish=boop,flip=<nil>]", res)
 
-	// Test that mutating the returned *Context doesn't mutate the original
-	// i.e. it's a new copy
-	bc.Put("bish", "bash")
-	assertEquals(t, "map[flip:flop]", fmt.Sprintf("%v", st.baseCtx.m))
-}
-
-func TestReInit(t *testing.T) {
-	ctx := NewContext()
-	ctx.Put("flip", "flop")
-	st := Init(ctx).Append(flipMiddleware).Then(flipHandler)
-	res := serveAndRequest(st)
-	assertEquals(t, "flipMiddleware>flipHandler [bish=<nil>,flip=flop]", res)
-
-	newCtx := st.BaseCtx()
-	newCtx.Put("bish", "bash")
-	st2 := ReInit(newCtx, st)
-	res = serveAndRequest(st2)
-	assertEquals(t, "flipMiddleware>flipHandler [bish=bash,flip=flop]", res)
-
-	// And the initial one shouldn't be mutated
 	res = serveAndRequest(st)
-	assertEquals(t, "flipMiddleware>flipHandler [bish=<nil>,flip=flop]", res)
+	assertEquals(t, "flipMiddleware>flipHandler [bish=<nil>,flip=<nil>]", res)
 }

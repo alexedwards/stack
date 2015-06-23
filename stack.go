@@ -11,12 +11,8 @@ type Chain struct {
 	baseCtx *Context
 }
 
-func Init(ctx *Context) Chain {
-	return Chain{baseCtx: ctx}
-}
-
 func New(mws ...chainMiddleware) Chain {
-	return Init(NewContext()).Append(mws...)
+	return Chain{mws: mws, baseCtx: NewContext()}
 }
 
 func (c Chain) Append(mws ...chainMiddleware) Chain {
@@ -60,14 +56,9 @@ func (cc ClosedChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	final.ServeHTTP(w, r)
 }
 
-func (cc ClosedChain) BaseCtx() *Context {
-	return cc.baseCtx.copy()
-}
-
-func ReInit(ctx *Context, cc ClosedChain) ClosedChain {
-	// Returns a new copy of the ClosedChain with baseCtx pointing to a new location
-	// Note to self: this isn't a complete copy, because cc.mws still points to the original location (it's a reference value)
-	// That's OK, because there's no way to manipulate cc.mws on a ClosedChain
+func Inject(cc ClosedChain, key string, val interface{}) ClosedChain {
+	ctx := cc.baseCtx.copy()
+	ctx.Put(key, val)
 	cc.baseCtx = ctx
 	return cc
 }
