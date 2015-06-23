@@ -6,13 +6,12 @@ type chainHandler func(*Context) http.Handler
 type chainMiddleware func(*Context, http.Handler) http.Handler
 
 type Chain struct {
-	mws     []chainMiddleware
-	h       chainHandler
-	baseCtx *Context
+	mws []chainMiddleware
+	h   chainHandler
 }
 
 func New(mws ...chainMiddleware) Chain {
-	return Chain{mws: mws, baseCtx: NewContext()}
+	return Chain{mws: mws}
 }
 
 func (c Chain) Append(mws ...chainMiddleware) Chain {
@@ -25,20 +24,27 @@ func (c Chain) Append(mws ...chainMiddleware) Chain {
 
 func (c Chain) Then(chf func(ctx *Context, w http.ResponseWriter, r *http.Request)) HandlerChain {
 	c.h = adaptContextHandlerFunc(chf)
-	return HandlerChain(c)
+	return newHandlerChain(c)
 }
 
 func (c Chain) ThenHandler(h http.Handler) HandlerChain {
 	c.h = adaptHandler(h)
-	return HandlerChain(c)
+	return newHandlerChain(c)
 }
 
 func (c Chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) HandlerChain {
 	c.h = adaptHandlerFunc(fn)
-	return HandlerChain(c)
+	return newHandlerChain(c)
 }
 
-type HandlerChain Chain
+type HandlerChain struct {
+	baseCtx *Context
+	Chain
+}
+
+func newHandlerChain(c Chain) HandlerChain {
+	return HandlerChain{baseCtx: NewContext(), Chain: c}
+}
 
 func (hc HandlerChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Always take a copy of baseCtx (i.e. pointing to a brand new memory location)
