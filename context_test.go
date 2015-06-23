@@ -2,6 +2,8 @@ package stack
 
 import "testing"
 
+// import "fmt"
+
 func TestGet(t *testing.T) {
 	ctx := NewContext()
 	ctx.m["flip"] = "flop"
@@ -32,4 +34,14 @@ func TestDelete(t *testing.T) {
 
 	ctx.Delete("flip")
 	assertEquals(t, nil, ctx.m["flip"])
+}
+
+func TestCopy(t *testing.T) {
+	ctx := NewContext()
+	ctx.m["flip"] = "flop"
+
+	ctx2 := ctx.copy()
+	ctx2.m["bish"] = "bash"
+	assertEquals(t, nil, ctx.m["bish"])
+	assertEquals(t, "bash", ctx2.m["bish"])
 }
