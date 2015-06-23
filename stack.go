@@ -23,44 +23,44 @@ func (c Chain) Append(mws ...chainMiddleware) Chain {
 	return c
 }
 
-func (c Chain) Then(chf func(ctx *Context, w http.ResponseWriter, r *http.Request)) ClosedChain {
+func (c Chain) Then(chf func(ctx *Context, w http.ResponseWriter, r *http.Request)) HandlerChain {
 	c.h = adaptContextHandlerFunc(chf)
-	return ClosedChain(c)
+	return HandlerChain(c)
 }
 
-func (c Chain) ThenHandler(h http.Handler) ClosedChain {
+func (c Chain) ThenHandler(h http.Handler) HandlerChain {
 	c.h = adaptHandler(h)
-	return ClosedChain(c)
+	return HandlerChain(c)
 }
 
-func (c Chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) ClosedChain {
+func (c Chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) HandlerChain {
 	c.h = adaptHandlerFunc(fn)
-	return ClosedChain(c)
+	return HandlerChain(c)
 }
 
-func (c Chain) ThenChainHandler(ch chainHandler) ClosedChain {
+func (c Chain) ThenChainHandler(ch chainHandler) HandlerChain {
 	c.h = ch
-	return ClosedChain(c)
+	return HandlerChain(c)
 }
 
-type ClosedChain Chain
+type HandlerChain Chain
 
-func (cc ClosedChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (hc HandlerChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Always take a copy of baseCtx (i.e. pointing to a brand new memory location)
-	ctx := cc.baseCtx.copy()
+	ctx := hc.baseCtx.copy()
 
-	final := cc.h(ctx)
-	for i := len(cc.mws) - 1; i >= 0; i-- {
-		final = cc.mws[i](ctx, final)
+	final := hc.h(ctx)
+	for i := len(hc.mws) - 1; i >= 0; i-- {
+		final = hc.mws[i](ctx, final)
 	}
 	final.ServeHTTP(w, r)
 }
 
-func Inject(cc ClosedChain, key string, val interface{}) ClosedChain {
-	ctx := cc.baseCtx.copy()
+func Inject(hc HandlerChain, key string, val interface{}) HandlerChain {
+	ctx := hc.baseCtx.copy()
 	ctx.Put(key, val)
-	cc.baseCtx = ctx
-	return cc
+	hc.baseCtx = ctx
+	return hc
 }
 
 // Adapt third party middleware with the signature
