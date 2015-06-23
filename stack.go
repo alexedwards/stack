@@ -58,9 +58,7 @@ func (hc HandlerChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func Inject(hc HandlerChain, key string, val interface{}) HandlerChain {
-	ctx := hc.context.copy()
-	ctx.Put(key, val)
-	hc.context = ctx
+	hc.context = hc.context.copy().Put(key, val)
 	return hc
 }
 

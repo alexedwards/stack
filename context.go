@@ -24,16 +24,18 @@ func (c *Context) Get(key string) (interface{}, error) {
 	return nil, fmt.Errorf("stack.Context: key %q does not exist", key)
 }
 
-func (c *Context) Put(key string, val interface{}) {
+func (c *Context) Put(key string, val interface{}) *Context {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.m[key] = val
+	return c
 }
 
-func (c *Context) Delete(key string) {
+func (c *Context) Delete(key string) *Context {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	delete(c.m, key)
+	return c
 }
 
 func (c *Context) copy() *Context {
