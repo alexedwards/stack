@@ -38,11 +38,6 @@ func (c Chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) Hand
 	return HandlerChain(c)
 }
 
-func (c Chain) ThenChainHandler(ch chainHandler) HandlerChain {
-	c.h = ch
-	return HandlerChain(c)
-}
-
 type HandlerChain Chain
 
 func (hc HandlerChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
