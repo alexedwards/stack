@@ -38,17 +38,17 @@ func (c Chain) ThenHandlerFunc(fn func(http.ResponseWriter, *http.Request)) Hand
 }
 
 type HandlerChain struct {
-	baseCtx *Context
+	context *Context
 	Chain
 }
 
 func newHandlerChain(c Chain) HandlerChain {
-	return HandlerChain{baseCtx: NewContext(), Chain: c}
+	return HandlerChain{context: NewContext(), Chain: c}
 }
 
 func (hc HandlerChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Always take a copy of baseCtx (i.e. pointing to a brand new memory location)
-	ctx := hc.baseCtx.copy()
+	// Always take a copy of context (i.e. pointing to a brand new memory location)
+	ctx := hc.context.copy()
 
 	final := hc.h(ctx)
 	for i := len(hc.mws) - 1; i >= 0; i-- {
@@ -58,9 +58,9 @@ func (hc HandlerChain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func Inject(hc HandlerChain, key string, val interface{}) HandlerChain {
-	ctx := hc.baseCtx.copy()
+	ctx := hc.context.copy()
 	ctx.Put(key, val)
-	hc.baseCtx = ctx
+	hc.context = ctx
 	return hc
 }
 
