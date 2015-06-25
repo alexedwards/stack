@@ -53,13 +53,13 @@ func wobbleMiddleware(next http.Handler) http.Handler {
 }
 
 func bishHandler(ctx *Context, w http.ResponseWriter, r *http.Request) {
-	val, _ := ctx.Get("bish")
+	val := ctx.Get("bish")
 	fmt.Fprintf(w, "bishHandler [bish=%v]", val)
 }
 
 func flipHandler(ctx *Context, w http.ResponseWriter, r *http.Request) {
-	valb, _ := ctx.Get("bish")
-	valf, _ := ctx.Get("flip")
+	valb := ctx.Get("bish")
+	valf := ctx.Get("flip")
 	fmt.Fprintf(w, "flipHandler [bish=%v,flip=%v]", valb, valf)
 }
 

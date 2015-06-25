@@ -7,16 +7,11 @@ func TestGet(t *testing.T) {
 	ctx.m["flip"] = "flop"
 	ctx.m["bish"] = nil
 
-	val, err := ctx.Get("flip")
-	assertEquals(t, nil, err)
+	val := ctx.Get("flip")
 	assertEquals(t, "flop", val)
 
-	val, err = ctx.Get("bish")
-	assertEquals(t, nil, err)
+	val = ctx.Get("bish")
 	assertEquals(t, nil, val)
-
-	_, err = ctx.Get("wibble")
-	assertEquals(t, "stack.Context: key \"wibble\" does not exist", err.Error())
 }
 
 func TestPut(t *testing.T) {

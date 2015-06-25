@@ -1,7 +1,6 @@
 package stack
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -15,13 +14,13 @@ func NewContext() *Context {
 	return &Context{m: m}
 }
 
-func (c *Context) Get(key string) (interface{}, error) {
+func (c *Context) Get(key string) interface{} {
+	if !c.Exists(key) {
+		return nil
+	}
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	if val, ok := c.m[key]; ok {
-		return val, nil
-	}
-	return nil, fmt.Errorf("stack.Context: key %q does not exist", key)
+	return c.m[key]
 }
 
 func (c *Context) Put(key string, val interface{}) *Context {
