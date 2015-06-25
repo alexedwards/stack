@@ -43,3 +43,11 @@ func TestCopy(t *testing.T) {
 	assertEquals(t, nil, ctx.m["bish"])
 	assertEquals(t, "bash", ctx2.m["bish"])
 }
+
+func TestExists(t *testing.T) {
+	ctx := NewContext()
+	ctx.m["flip"] = "flop"
+
+	assertEquals(t, true, ctx.Exists("flip"))
+	assertEquals(t, false, ctx.Exists("bash"))
+}

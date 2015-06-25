@@ -38,6 +38,13 @@ func (c *Context) Delete(key string) *Context {
 	return c
 }
 
+func (c *Context) Exists(key string) bool {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	_, ok := c.m[key]
+	return ok
+}
+
 func (c *Context) copy() *Context {
 	nc := NewContext()
 	c.mu.RLock()
