@@ -95,7 +95,7 @@ func middlewareOne(ctx *stack.Context, next http.Handler) http.Handler {
 
 You retrieve data with [`Context.Get()`](http://godoc.org/github.com/alexedwards/stack#Context.Get). Remember to type assert it into the type you're expecting.
 
-```
+```go
 func appHandler(ctx *stack.Context, w http.ResponseWriter, r *http.Request) {
   token, ok := ctx.Get("token").(string)
   if !ok {
@@ -183,4 +183,3 @@ func final(ctx *stack.Context, w http.ResponseWriter, r *http.Request) {
 - Make a `chain.Merge()` method
 - Mirror master in v1 branch (and mention gopkg.in in README)
 - Add benchmarks
-- Add usage examples section to documentation
