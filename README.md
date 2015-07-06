@@ -32,7 +32,7 @@ func middlewareOne(ctx *stack.Context, next http.Handler) http.Handler {
 }
 ```
 
-You can also use third-party middleware with the signature `func(http.Handler) http.Handler` by adapting it with [`stack.Adapt()`](http://godoc.org/github.com/alexedwards/stack#Adapt). For example, if you had the middleware:
+You can also use middleware with the signature `func(http.Handler) http.Handler` by adapting it with [`stack.Adapt()`](http://godoc.org/github.com/alexedwards/stack#Adapt). For example, if you had the middleware:
 
 ```go
 func middlewareTwo(next http.Handler) http.Handler {
@@ -53,7 +53,9 @@ See the [codes samples](#code-samples) for real-life use of third-party middlewa
 
 #### Adding an application handler
 
-Application handlers should have the signature `func(*stack.Context, http.ResponseWriter, *http.Request)`. You add them to the end of a middleware chain with the [`Then()`](http://godoc.org/github.com/alexedwards/stack#Chain.Then) method. An application handler like this:
+Application handlers should have the signature `func(*stack.Context, http.ResponseWriter, *http.Request)`. You add them to the end of a middleware chain with the [`Then()`](http://godoc.org/github.com/alexedwards/stack#Chain.Then) method. 
+
+So an application handler like this:
 
 ```go
 func appHandler(ctx *stack.Context, w http.ResponseWriter, r *http.Request) {
@@ -61,7 +63,7 @@ func appHandler(ctx *stack.Context, w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-Is added to the end of a middleware chain like so:
+Is added to the end of a middleware chain like this:
 
 ```go
 stack.New(middlewareOne, middlewareTwo).Then(appHandler)
@@ -76,7 +78,7 @@ fs :=  http.FileServer(http.Dir("./static/"))
 http.Handle("/", stack.New(middlewareOne, middlewareTwo).ThenHandler(fs))
 ```
 
-Once a chain is 'closed' with any of these methods it is converted into a [`HandlerChain`](http://godoc.org/github.com/alexedwards/stack#HandlerChain) object which satisfies the `http.Handler` interface.
+Once a chain is 'closed' with any of these methods it is converted into a [`HandlerChain`](http://godoc.org/github.com/alexedwards/stack#HandlerChain) object which satisfies the `http.Handler` interface, and can be used with the `http.DefaultServeMux` and many other routers.
 
 #### Using context
 
@@ -93,7 +95,7 @@ func middlewareOne(ctx *stack.Context, next http.Handler) http.Handler {
 }
 ```
 
-You retrieve data with [`Context.Get()`](http://godoc.org/github.com/alexedwards/stack#Context.Get). Remember to type assert it into the type you're expecting.
+You retrieve data with [`Context.Get()`](http://godoc.org/github.com/alexedwards/stack#Context.Get). Remember to type assert the returned value into the type you're expecting.
 
 ```go
 func appHandler(ctx *stack.Context, w http.ResponseWriter, r *http.Request) {
