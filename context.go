@@ -47,7 +47,7 @@ func (c *Context) Exists(key string) bool {
 func (c *Context) copy() *Context {
 	nc := NewContext()
 	c.mu.RLock()
-	c.mu.RUnlock()
+	defer c.mu.RUnlock()
 	for k, v := range c.m {
 		nc.m[k] = v
 	}
