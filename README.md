@@ -1,4 +1,4 @@
-# Stack <br> [![Build Status](https://travis-ci.org/alexedwards/stack.svg?branch=master)](https://travis-ci.org/alexedwards/stack)  [![Coverage](http://gocover.io/_badge/github.com/alexedwards/stack?0)](http://gocover.io/github.com/alexedwards/stack)  [![GoDoc](http://godoc.org/github.com/alexedwards/stack?status.png)](http://godoc.org/github.com/alexedwards/stack)
+# Stack <br> [![Build Status](https://travis-ci.org/alexedwards/stack.svg?branch=master)](https://travis-ci.org/alexedwards/stack)  [![GoDoc](http://godoc.org/github.com/alexedwards/stack?status.png)](http://godoc.org/github.com/alexedwards/stack)
 
 Stack provides an easy way to chain your HTTP middleware and handlers together and to pass request-scoped context between them. It's essentially a context-aware version of [Alice](https://github.com/justinas/alice).
 
